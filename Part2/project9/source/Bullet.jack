@@ -1,0 +1,82 @@
+class Bullet {
+    field int x, y, direction, speed;
+    field boolean isActive;
+
+    constructor Bullet new() {
+        let x = 0;
+        let y = 0;
+        let direction = 0;
+        let speed = 5;
+        let isActive = false;
+        return this;
+    }
+
+    method void fire(int posX, int posY, int bulletDirection) {
+        let x = posX;
+        let y = posY;
+        let direction = bulletDirection;
+        let isActive = true;
+        return;
+    }
+    
+    method void tick() {
+        if (isActive) {
+            let y = y + (direction * speed);
+            if (y < 0) { let isActive = false; }
+            if (y > 235) { let isActive = false; }
+        }
+        return;
+    }
+
+    method boolean isActive() {
+        return isActive;
+    }
+
+    method int getX() {
+        return x;
+    }
+
+    method int getY() {
+        return y;
+    }
+
+    method void deactivate() {
+        let isActive = false;
+        do erase();
+        return;
+    }
+
+    method boolean collides(Bullet bullet) {
+        if (~(bullet.getX() = x)) { return false; }
+        if (bullet.getY() > (y + 10)) { return false; }
+        if ((bullet.getY() + 2) < y) { return false; }
+        return true;
+    }
+
+    method void draw() {
+        var int memAddress;
+        if (~isActive) { return; } 
+        let memAddress = 16384 + (y * 32) + x;
+        // column 0
+        do Memory.poke(memAddress, 128);
+        do Memory.poke(memAddress +32, 128);
+        do Memory.poke(memAddress +64, 128);
+        return;
+    }
+
+    method void erase() {
+        var int memAddress; 
+        if (~isActive) { return; } 
+        let memAddress = 16384 + (y * 32) + x;
+        // column 0
+        do Memory.poke(memAddress, 0);
+        do Memory.poke(memAddress +32, 0);
+        do Memory.poke(memAddress +64, 0);
+        return;
+    }
+
+    method void dispose() {
+        do Memory.deAlloc(this);
+        return;
+    }
+}

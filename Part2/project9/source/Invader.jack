@@ -1,0 +1,88 @@
+class Invader {
+    field int relativeX, relativeY;
+    field boolean isAlive;
+
+    constructor Invader new(int Ax, int Ay) {
+        let relativeX = Ax;
+        let relativeY = Ay;
+        let isAlive = true;
+        return this;
+    }
+
+    method void hit() {
+        let isAlive = false;
+        return;
+    }
+
+    method boolean isAlive() {
+        return isAlive;
+    }
+
+    method int getX() {
+        return relativeX;
+    }
+
+    method int getY() {
+        return relativeY;
+    }
+
+    method void reset() {
+        let isAlive = true;
+        return;
+    }
+
+    method boolean collides(int fleetX, int fleetY, int bulletX, int bulletY) {
+        var int absoluteX, absoluteY;
+        let absoluteX = fleetX + relativeX;
+        let absoluteY = fleetY + relativeY;
+        if (~(bulletX = absoluteX)) { return false; }
+        if (bulletY > (absoluteY + 10)) { return false; }
+        if ((bulletY + 2) < absoluteY) { return false; }
+        return true;
+    }
+
+    method void erase(int x, int y) {
+        var int memAddress, absoluteX, absoluteY;
+        let absoluteX = x + relativeX;
+        let absoluteY = y + relativeY; 
+        let memAddress = 16384 + (absoluteY * 32) + absoluteX;
+        // column 0
+        do Memory.poke(memAddress, 0);
+        do Memory.poke(memAddress +32, 0);
+        do Memory.poke(memAddress +64, 0);
+        do Memory.poke(memAddress +96, 0);
+        do Memory.poke(memAddress +128, 0);
+        do Memory.poke(memAddress +160, 0);
+        do Memory.poke(memAddress +192, 0);
+        do Memory.poke(memAddress +224, 0);
+        do Memory.poke(memAddress +256, 0);
+        do Memory.poke(memAddress +288, 0);
+        do Memory.poke(memAddress +320, 0);
+        return;
+    }
+
+    method void draw(int x, int y) {
+        var int memAddress, absoluteX, absoluteY;
+        let absoluteX = x + relativeX;
+        let absoluteY = y + relativeY; 
+        let memAddress = 16384 + (absoluteY * 32) + absoluteX;
+        // column 0
+        do Memory.poke(memAddress, 516);
+        do Memory.poke(memAddress +32, 2313);
+        do Memory.poke(memAddress +64, 3069);
+        do Memory.poke(memAddress +96, 2805);
+        do Memory.poke(memAddress +128, 3831);
+        do Memory.poke(memAddress +160, 4095);
+        do Memory.poke(memAddress +192, 4095);
+        do Memory.poke(memAddress +224, 2046);
+        do Memory.poke(memAddress +256, 1020);
+        do Memory.poke(memAddress +288, 264);
+        do Memory.poke(memAddress +320, 516);
+        return;
+    }
+
+    method void dispose() {
+        do Memory.deAlloc(this);
+        return;
+    }
+}

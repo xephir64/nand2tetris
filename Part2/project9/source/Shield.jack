@@ -1,0 +1,125 @@
+class Shield {
+    // state of the Shield, 0 = Full, 1 = Damaged, 2 = Broken
+    field int state;
+    field int x, y;
+
+    constructor Shield new(int Ax, int Ay) {
+        let x = Ax;
+        let y = Ay;
+        let state = 0;
+        return this;
+    }
+
+    method boolean isActive() {
+        if (state = 2) { return false; }
+        return true;
+    }
+
+    method void break() {
+        if (~(isActive())) {  return; }
+        do erase();
+        if (state = 0) { let state = 1; }
+        else { 
+            if (state = 1) { let state = 2; }
+        }
+        do draw();
+        return;
+    }
+
+    method void reset() {
+        let state = 0;
+        return;
+    }
+
+    method boolean collides(Bullet bullet) {
+        if (~(bullet.getX() = x)) { return false; }
+        if (bullet.getY() > (y + 10)) { return false; }
+        if ((bullet.getY() + 2) < y) { return false; }
+        return true;
+    }
+
+    method void draw() {
+        if (state = 0) { do drawFullShield(); }
+        else { 
+            if (state = 1) { do drawDamagedShield(); }
+        }
+        return;
+    }
+
+    method void erase() {
+        var int memAddress; 
+        let memAddress = 16384 + (y * 32) + x;
+        // column 0
+        do Memory.poke(memAddress, 0);
+        do Memory.poke(memAddress +32, 0);
+        do Memory.poke(memAddress +64, 0);
+        do Memory.poke(memAddress +96, 0);
+        do Memory.poke(memAddress +128, 0);
+        do Memory.poke(memAddress +160, 0);
+        do Memory.poke(memAddress +192, 0);
+        do Memory.poke(memAddress +224, 0);
+        do Memory.poke(memAddress +256, 0);
+        do Memory.poke(memAddress +288, 0);
+        do Memory.poke(memAddress +320, 0);
+        do Memory.poke(memAddress +352, 0);
+        do Memory.poke(memAddress +384, 0);
+        do Memory.poke(memAddress +416, 0);
+        do Memory.poke(memAddress +448, 0);
+        do Memory.poke(memAddress +480, 0);
+        do Memory.poke(memAddress +512, 0);
+        return;
+    }
+
+    method void drawDamagedShield() {
+        var int memAddress; 
+        let memAddress = 16384 + (y * 32) + x;
+        // column 0
+        do Memory.poke(memAddress, 10922);
+        do Memory.poke(memAddress +32, 21845);
+        do Memory.poke(memAddress +64, 10922);
+        do Memory.poke(memAddress +96, 21845);
+        do Memory.poke(memAddress +128, 10922);
+        do Memory.poke(memAddress +160, 21845);
+        do Memory.poke(memAddress +192, 10922);
+        do Memory.poke(memAddress +224, 21845);
+        do Memory.poke(memAddress +256, 10922);
+        do Memory.poke(memAddress +288, 21525);
+        do Memory.poke(memAddress +320, 10794);
+        do Memory.poke(memAddress +352, 21525);
+        do Memory.poke(memAddress +384, 10794);
+        do Memory.poke(memAddress +416, 21525);
+        do Memory.poke(memAddress +448, 10794);
+        do Memory.poke(memAddress +480, 21525);
+        do Memory.poke(memAddress +512, 10794);
+        return;
+    }
+
+    method void drawFullShield() {
+        var int memAddress; 
+        let memAddress = 16384 + (y * 32) + x;
+        // column 0
+        do Memory.poke(memAddress, 32767);
+        do Memory.poke(memAddress +32, 32767);
+        do Memory.poke(memAddress +64, 32767);
+        do Memory.poke(memAddress +96, 32767);
+        do Memory.poke(memAddress +128, 32767);
+        do Memory.poke(memAddress +160, 32767);
+        do Memory.poke(memAddress +192, 32767);
+        do Memory.poke(memAddress +224, 32767);
+        do Memory.poke(memAddress +256, 32767);
+        do Memory.poke(memAddress +288, 32319);
+        do Memory.poke(memAddress +320, 32319);
+        do Memory.poke(memAddress +352, 32319);
+        do Memory.poke(memAddress +384, 32319);
+        do Memory.poke(memAddress +416, 32319);
+        do Memory.poke(memAddress +448, 32319);
+        do Memory.poke(memAddress +480, 32319);
+        do Memory.poke(memAddress +512, 32319);
+        return;
+    }
+
+    method void dispose() {
+        do Memory.deAlloc(this);
+        return;
+    }
+}

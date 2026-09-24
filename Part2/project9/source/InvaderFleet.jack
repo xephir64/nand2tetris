@@ -1,0 +1,189 @@
+class InvaderFleet {
+    field Array fleet;
+    field Random prng;
+
+    field int x, y, fleetSize, direction, speed;
+    field int alive, moveCounter, moveDelay, shootCounter, shootDelay, shooterIndex; // counters
+    
+    constructor InvaderFleet new(int rows, int columns) {
+        let fleetSize = Math.multiply(rows, columns);
+        let fleet = Array.new(fleetSize);
+        let prng = Random.new();
+        let speed = 1;
+        let x = 0;
+        let y = 0;
+        let alive = fleetSize;
+        let direction = 1;
+        let moveCounter = 0;
+        let moveDelay = 9;
+        let shootCounter = 0;
+        let shootDelay = 50;
+        let shooterIndex = fleetSize;
+        do initFleet(rows, columns);
+        return this;
+    }
+
+    method int getAliveEnemies() {
+        return alive;
+    }
+
+    method void initFleet(int rows, int columns) {
+        var Invader invader;
+        var int i, j, r, c, pos;
+        
+        let i = 0;
+        while (i < columns) {
+            let j = 0;
+            while (j < rows) {
+                let c = (i * 15);
+                let r = (j * 2);
+                let invader = Invader.new(r, c);
+                let pos = Math.multiply(i, rows) + j;
+                let fleet[pos] = invader;
+                let j = j + 1;
+            }
+            let i = i + 1;
+        }
+        return;
+    }
+
+    method void reset() {
+        var Invader invader;
+        var int i;
+
+        let i = 0;
+        while (i < fleetSize) {
+            let invader = fleet[i];
+            do invader.reset();
+            let i = i + 1;
+        }
+
+        let speed = 1;
+        let x = 0;
+        let y = 0;
+        let direction = 1;
+        let alive = fleetSize;
+        let moveCounter = 0;
+        let moveDelay = 9;
+        let shootCounter = 0;
+        let shootDelay = 50;
+        let shooterIndex = fleetSize;
+        return;
+    }
+
+    method void tick() {
+        let moveCounter = moveCounter + 1;
+        if (moveCounter < moveDelay) { return; }
+        let moveCounter = 0;
+        let x = x + (direction * speed);
+        if (x > 21) {
+            let x = 21;
+            let direction = -1;
+            let y = y + 3;
+        }
+        if (x < 0) {
+            let x = 0;
+            let direction = 1;
+            let y = y + 3;
+        }
+        return;
+    }
+
+    method boolean shouldShoot() {
+        let shootCounter = shootCounter + 1;
+        if (shootCounter > shootDelay) {
+            let shootCounter = 0;
+            return true;
+        }
+        return false;
+    }
+
+    method boolean checkCollisions(Bullet bullet) {
+        var Invader invader;
+        var int i;
+
+        let i = 0;
+        while (i < fleetSize) {
+            let invader = fleet[i];
+            if (invader.isAlive()) {
+                if (invader.collides(x, y, bullet.getX(), bullet.getY())) {
+                    do invader.hit();
+                    let alive = alive - 1;
+                    if (moveDelay > 3) { let moveDelay = moveDelay - 1; }
+                    if (shootDelay > 20) { let shootDelay = shootDelay - 5;}
+                    return true;
+                }
+            }
+            let i = i + 1;
+        }
+        return false;
+    }
+
+    method int getX() {
+        return x;
+    }
+
+    method int getY() {
+        return y;
+    }
+
+    method Invader getRandomActiveInvader() {
+        var Invader invader;
+        var int index, i;
+
+        let index = prng.range(fleetSize);
+        let i = 0;
+        while (i < fleetSize) {
+            let invader = fleet[index];
+            if (invader.isAlive()) {
+                return invader;
+            }
+            let index = index + 1;
+            if (index = fleetSize) {
+                let index = 0;
+            }
+            let i = i + 1;
+        }
+        return null;
+    }
+
+    method void draw() {
+        var Invader invader;
+        var int i;
+
+        let i = 0;
+        while (i < fleetSize) {
+            let invader = fleet[i];
+            if (invader.isAlive()) { do invader.draw(x, y); }
+            let i = i + 1;
+        }
+        return;
+    }
+
+    method void erase() {
+        var Invader invader;
+        var int i;
+        let i = 0;
+        while (i < fleetSize) {
+            let invader = fleet[i];
+            do invader.erase(x, y);
+            let i = i + 1;
+        }
+        return;
+    }
+
+    method void dispose() {
+        var Invader invader;
+        var int i;
+        let i = 0;
+        while (i < fleetSize) {
+            let invader = fleet[i];
+            do invader.dispose();
+            let i = i + 1;
+        }
+        do fleet.dispose();
+        do prng.dispose();
+        do Memory.deAlloc(this);
+        return;
+    }
+}

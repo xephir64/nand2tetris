@@ -1,0 +1,25 @@
+class Random {
+    field int seed;
+    constructor Random new() {
+        let seed = 1000;
+        return this;
+    }
+
+    // simple implementation of the Linear congruential generator
+    method int lcg() {
+        let seed = ((seed * 5) + 1) & 32767;
+        return seed;
+    }
+
+    method int range(int max) {
+        var int rand, res;
+        if (max < 1) { return 0; }
+        let rand = lcg();
+        return rand - ((rand / max) * max);
+    }
+
+    method void dispose() {
+        do Memory.deAlloc(this);
+        return;
+    }
+}

@@ -1,0 +1,468 @@
+function InvaderFleet.new 0
+push constant 13
+call Memory.alloc 1
+pop pointer 0
+push argument 0
+push argument 1
+call Math.multiply 2
+pop this 4
+push this 4
+call Array.new 1
+pop this 0
+call Random.new 0
+pop this 1
+push constant 1
+pop this 6
+push constant 0
+pop this 2
+push constant 0
+pop this 3
+push this 4
+pop this 7
+push constant 1
+pop this 5
+push constant 0
+pop this 8
+push constant 9
+pop this 9
+push constant 0
+pop this 10
+push constant 50
+pop this 11
+push this 4
+pop this 12
+push pointer 0
+push argument 0
+push argument 1
+call InvaderFleet.initFleet 3
+pop temp 0
+push pointer 0
+return
+function InvaderFleet.getAliveEnemies 0
+push argument 0
+pop pointer 0
+push this 7
+return
+function InvaderFleet.initFleet 6
+push argument 0
+pop pointer 0
+push constant 0
+pop local 1
+label WHILE_EXP0
+push local 1
+push argument 2
+lt
+not
+if-goto WHILE_END0
+push constant 0
+pop local 2
+label WHILE_EXP1
+push local 2
+push argument 1
+lt
+not
+if-goto WHILE_END1
+push local 1
+push constant 15
+call Math.multiply 2
+pop local 4
+push local 2
+push constant 2
+call Math.multiply 2
+pop local 3
+push local 3
+push local 4
+call Invader.new 2
+pop local 0
+push local 1
+push argument 1
+call Math.multiply 2
+push local 2
+add
+pop local 5
+push local 5
+push this 0
+add
+push local 0
+pop temp 0
+pop pointer 1
+push temp 0
+pop that 0
+push local 2
+push constant 1
+add
+pop local 2
+goto WHILE_EXP1
+label WHILE_END1
+push local 1
+push constant 1
+add
+pop local 1
+goto WHILE_EXP0
+label WHILE_END0
+push constant 0
+return
+function InvaderFleet.reset 2
+push argument 0
+pop pointer 0
+push constant 0
+pop local 1
+label WHILE_EXP0
+push local 1
+push this 4
+lt
+not
+if-goto WHILE_END0
+push local 1
+push this 0
+add
+pop pointer 1
+push that 0
+pop local 0
+push local 0
+call Invader.reset 1
+pop temp 0
+push local 1
+push constant 1
+add
+pop local 1
+goto WHILE_EXP0
+label WHILE_END0
+push constant 1
+pop this 6
+push constant 0
+pop this 2
+push constant 0
+pop this 3
+push constant 1
+pop this 5
+push this 4
+pop this 7
+push constant 0
+pop this 8
+push constant 9
+pop this 9
+push constant 0
+pop this 10
+push constant 50
+pop this 11
+push this 4
+pop this 12
+push constant 0
+return
+function InvaderFleet.tick 0
+push argument 0
+pop pointer 0
+push this 8
+push constant 1
+add
+pop this 8
+push this 8
+push this 9
+lt
+if-goto IF_TRUE0
+goto IF_FALSE0
+label IF_TRUE0
+push constant 0
+return
+label IF_FALSE0
+push constant 0
+pop this 8
+push this 2
+push this 5
+push this 6
+call Math.multiply 2
+add
+pop this 2
+push this 2
+push constant 21
+gt
+if-goto IF_TRUE1
+goto IF_FALSE1
+label IF_TRUE1
+push constant 21
+pop this 2
+push constant 1
+neg
+pop this 5
+push this 3
+push constant 3
+add
+pop this 3
+label IF_FALSE1
+push this 2
+push constant 0
+lt
+if-goto IF_TRUE2
+goto IF_FALSE2
+label IF_TRUE2
+push constant 0
+pop this 2
+push constant 1
+pop this 5
+push this 3
+push constant 3
+add
+pop this 3
+label IF_FALSE2
+push constant 0
+return
+function InvaderFleet.shouldShoot 0
+push argument 0
+pop pointer 0
+push this 10
+push constant 1
+add
+pop this 10
+push this 10
+push this 11
+gt
+if-goto IF_TRUE0
+goto IF_FALSE0
+label IF_TRUE0
+push constant 0
+pop this 10
+push constant 0
+not
+return
+label IF_FALSE0
+push constant 0
+return
+function InvaderFleet.checkCollisions 2
+push argument 0
+pop pointer 0
+push constant 0
+pop local 1
+label WHILE_EXP0
+push local 1
+push this 4
+lt
+not
+if-goto WHILE_END0
+push local 1
+push this 0
+add
+pop pointer 1
+push that 0
+pop local 0
+push local 0
+call Invader.isAlive 1
+if-goto IF_TRUE0
+goto IF_FALSE0
+label IF_TRUE0
+push local 0
+push this 2
+push this 3
+push argument 1
+call Bullet.getX 1
+push argument 1
+call Bullet.getY 1
+call Invader.collides 5
+if-goto IF_TRUE1
+goto IF_FALSE1
+label IF_TRUE1
+push local 0
+call Invader.hit 1
+pop temp 0
+push this 7
+push constant 1
+sub
+pop this 7
+push this 9
+push constant 3
+gt
+if-goto IF_TRUE2
+goto IF_FALSE2
+label IF_TRUE2
+push this 9
+push constant 1
+sub
+pop this 9
+label IF_FALSE2
+push this 11
+push constant 20
+gt
+if-goto IF_TRUE3
+goto IF_FALSE3
+label IF_TRUE3
+push this 11
+push constant 5
+sub
+pop this 11
+label IF_FALSE3
+push constant 0
+not
+return
+label IF_FALSE1
+label IF_FALSE0
+push local 1
+push constant 1
+add
+pop local 1
+goto WHILE_EXP0
+label WHILE_END0
+push constant 0
+return
+function InvaderFleet.getX 0
+push argument 0
+pop pointer 0
+push this 2
+return
+function InvaderFleet.getY 0
+push argument 0
+pop pointer 0
+push this 3
+return
+function InvaderFleet.getRandomActiveInvader 3
+push argument 0
+pop pointer 0
+push this 1
+push this 4
+call Random.range 2
+pop local 1
+push constant 0
+pop local 2
+label WHILE_EXP0
+push local 2
+push this 4
+lt
+not
+if-goto WHILE_END0
+push local 1
+push this 0
+add
+pop pointer 1
+push that 0
+pop local 0
+push local 0
+call Invader.isAlive 1
+if-goto IF_TRUE0
+goto IF_FALSE0
+label IF_TRUE0
+push local 0
+return
+label IF_FALSE0
+push local 1
+push constant 1
+add
+pop local 1
+push local 1
+push this 4
+eq
+if-goto IF_TRUE1
+goto IF_FALSE1
+label IF_TRUE1
+push constant 0
+pop local 1
+label IF_FALSE1
+push local 2
+push constant 1
+add
+pop local 2
+goto WHILE_EXP0
+label WHILE_END0
+push constant 0
+return
+function InvaderFleet.draw 2
+push argument 0
+pop pointer 0
+push constant 0
+pop local 1
+label WHILE_EXP0
+push local 1
+push this 4
+lt
+not
+if-goto WHILE_END0
+push local 1
+push this 0
+add
+pop pointer 1
+push that 0
+pop local 0
+push local 0
+call Invader.isAlive 1
+if-goto IF_TRUE0
+goto IF_FALSE0
+label IF_TRUE0
+push local 0
+push this 2
+push this 3
+call Invader.draw 3
+pop temp 0
+label IF_FALSE0
+push local 1
+push constant 1
+add
+pop local 1
+goto WHILE_EXP0
+label WHILE_END0
+push constant 0
+return
+function InvaderFleet.erase 2
+push argument 0
+pop pointer 0
+push constant 0
+pop local 1
+label WHILE_EXP0
+push local 1
+push this 4
+lt
+not
+if-goto WHILE_END0
+push local 1
+push this 0
+add
+pop pointer 1
+push that 0
+pop local 0
+push local 0
+push this 2
+push this 3
+call Invader.erase 3
+pop temp 0
+push local 1
+push constant 1
+add
+pop local 1
+goto WHILE_EXP0
+label WHILE_END0
+push constant 0
+return
+function InvaderFleet.dispose 2
+push argument 0
+pop pointer 0
+push constant 0
+pop local 1
+label WHILE_EXP0
+push local 1
+push this 4
+lt
+not
+if-goto WHILE_END0
+push local 1
+push this 0
+add
+pop pointer 1
+push that 0
+pop local 0
+push local 0
+call Invader.dispose 1
+pop temp 0
+push local 1
+push constant 1
+add
+pop local 1
+goto WHILE_EXP0
+label WHILE_END0
+push this 0
+call Array.dispose 1
+pop temp 0
+push this 1
+call Random.dispose 1
+pop temp 0
+push pointer 0
+call Memory.deAlloc 1
+pop temp 0
+push constant 0
+return

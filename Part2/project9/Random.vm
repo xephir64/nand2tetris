@@ -1,0 +1,52 @@
+function Random.new 0
+push constant 1
+call Memory.alloc 1
+pop pointer 0
+push constant 1000
+pop this 0
+push pointer 0
+return
+function Random.lcg 0
+push argument 0
+pop pointer 0
+push this 0
+push constant 5
+call Math.multiply 2
+push constant 1
+add
+push constant 32767
+and
+pop this 0
+push this 0
+return
+function Random.range 2
+push argument 0
+pop pointer 0
+push argument 1
+push constant 1
+lt
+if-goto IF_TRUE0
+goto IF_FALSE0
+label IF_TRUE0
+push constant 0
+return
+label IF_FALSE0
+push pointer 0
+call Random.lcg 1
+pop local 0
+push local 0
+push local 0
+push argument 1
+call Math.divide 2
+push argument 1
+call Math.multiply 2
+sub
+return
+function Random.dispose 0
+push argument 0
+pop pointer 0
+push pointer 0
+call Memory.deAlloc 1
+pop temp 0
+push constant 0
+return

@@ -1,0 +1,402 @@
+class Game {
+    // State of the Game, can be 0 = MENU, 1 = PLAY, 2 = PAUSE, 3 = GAME_OVER, 4 = WIN, 5 = EXIT
+    field int gameState;
+    // Player scores
+    field int score, playerLives;
+    field int maxScore;
+    field int enemyBulletCount;
+    field Player player;
+    field Bullet bullet;
+    field InvaderFleet fleet;
+    field Array enemyBullets;
+    field Shield shield1, shield2, shield3, shield4;
+
+    constructor Game new() {
+        var int i;
+        let gameState = 0;
+        let score = 0;
+        let playerLives = 3;
+        let player = Player.new(0, 230);
+        let fleet = InvaderFleet.new(6, 4);
+        let bullet = Bullet.new();
+        let maxScore = ((6 * 4) * 10); // fleetSize * 10, each invader is 10 points
+
+        let shield1 = Shield.new(4, 180);
+        let shield2 = Shield.new(12, 180);
+        let shield3 = Shield.new(20, 180);
+        let shield4 = Shield.new(28, 180);
+
+        let enemyBulletCount = 3;
+        let enemyBullets = Array.new(enemyBulletCount);
+
+        let i = 0;
+        while (i < enemyBulletCount) {
+            let enemyBullets[i] = Bullet.new();
+            let i = i + 1;
+        }
+        return this;
+    }
+    // game loop
+    method void run() {
+        do showMenu();
+
+        while (~(gameState = 5)) {
+            do handleInput();
+            if (gameState = 1) {
+                do erase();
+                do update();
+                do checkCollisions();
+                do draw();
+                do Sys.wait(50);
+                if (playerLives = 0) { let gameState = 3; }
+                else { if (fleet.getAliveEnemies() = 0) { let gameState = 4; } }
+            }
+            if (gameState = 2) { do Sys.wait(300); }
+            if (gameState = 3) { do showGameOver(); }
+            if (gameState = 4) { do showWin(); }
+        }
+        do Screen.clearScreen();
+        return;
+    }
+
+    method void checkCollisions() {
+        var Bullet enemyBullet;
+        var int i;
+
+        if (bullet.isActive()) { // check player bullet collision with an enemy
+            if (fleet.checkCollisions(bullet)) {
+                let score = score + 10;
+                do bullet.deactivate();        
+                do Output.moveCursor(22,7);
+                do Output.printInt(score);
+            }
+        }
+
+        if (bullet.isActive()) { // check player collision with a shield
+            if (shield1.isActive()) {
+                if (shield1.collides(bullet)) {
+                    do shield1.break();
+                    do bullet.deactivate();
+                }
+            }
+            if (shield2.isActive()) {
+                if (shield2.collides(bullet)) {
+                    do shield2.break();
+                    do bullet.deactivate();
+                }
+            }
+            if (shield3.isActive()) {
+                if (shield3.collides(bullet)) {
+                    do shield3.break();
+                    do bullet.deactivate();
+                }
+            }
+            if (shield4.isActive()) {
+                if (shield4.collides(bullet)) {
+                    do shield4.break();
+                    do bullet.deactivate();
+                }
+            }
+        }
+
+        let i = 0;
+        while (i < enemyBulletCount) { // check enemy bullet collision with the sheilds
+            let enemyBullet = enemyBullets[i];
+            if (enemyBullet.isActive()) {
+                if (shield1.isActive()) {
+                    if (shield1.collides(enemyBullet)) {
+                        do shield1.break();
+                        do enemyBullet.deactivate();
+                    }
+                }
+                if (shield2.isActive()) {
+                    if (shield2.collides(enemyBullet)) {
+                        do shield2.break();
+                        do enemyBullet.deactivate();
+                    }
+                }
+                if (shield3.isActive()) {
+                    if (shield3.collides(enemyBullet)) {
+                        do shield3.break();
+                        do enemyBullet.deactivate();
+                    }
+                }
+                if (shield4.isActive()) {
+                    if (shield4.collides(enemyBullet)) {
+                        do shield4.break();
+                        do enemyBullet.deactivate();
+                    }
+                }
+            }
+            let i = i + 1;
+        }
+
+        let i = 0;
+        while (i < enemyBulletCount) { // check enemy bullet collision with the player
+            let enemyBullet = enemyBullets[i];
+            if (enemyBullet.isActive()) {
+                if (player.collides(enemyBullet)) {
+                    do enemyBullet.deactivate();
+                    let playerLives = playerLives - 1;
+                    do showPlayerLives();
+                }
+            }
+            let i = i + 1;
+        }
+
+        if (bullet.isActive()) {
+            let i = 0;
+            while (i < enemyBulletCount) { // check enemy bullet collision with player bullet
+                let enemyBullet = enemyBullets[i];
+                if (enemyBullet.isActive()) {
+                    if (bullet.collides(enemyBullet)) {
+                        do enemyBullet.deactivate();
+                        do bullet.deactivate();
+                    }
+                }
+                let i = i + 1;
+            }
+        }
+
+        return;
+    }
+
+    method void enemyShoot() {
+        var Bullet enemyBullet;
+        var Invader invader;
+        var int i, absoluteX, absoluteY;
+
+        let invader = fleet.getRandomActiveInvader();
+        if (invader = null) { return; } // if there's no invaders alive
+
+        let i = 0;
+        while (i < enemyBulletCount) {
+            let enemyBullet = enemyBullets[i];
+            if (~(enemyBullet.isActive())) {
+                let absoluteX = invader.getX() + fleet.getX();
+                let absoluteY = invader.getY() + fleet.getY() + 5; // add offset
+                do enemyBullet.fire(absoluteX, absoluteY, 1); 
+                return;
+            }
+            let i = i + 1;
+        }
+        
+        return;
+    }
+    
+    method void erase() {
+        var Bullet enemyBullet;
+        var int i;
+
+        do fleet.erase();
+        do bullet.erase();
+
+        let i = 0;
+        while (i < enemyBulletCount) {
+            let enemyBullet = enemyBullets[i];
+            do enemyBullet.erase();
+            let i = i + 1;
+        }
+
+        return;
+    }
+
+    method void update() {
+        var Bullet enemyBullet;
+        var int i;
+
+        do fleet.tick();
+        do bullet.tick();
+
+        let i = 0;
+        while (i < enemyBulletCount) {
+            let enemyBullet = enemyBullets[i];
+            do enemyBullet.tick();
+            let i = i + 1;
+        }
+
+        if (fleet.shouldShoot()) { do enemyShoot(); }
+        return;
+    }
+
+    method void draw() {
+        var Bullet enemyBullet;
+        var int i;
+
+        do fleet.draw();
+        do bullet.draw();
+
+        let i = 0;
+        while (i < enemyBulletCount) {
+            let enemyBullet = enemyBullets[i];
+            do enemyBullet.draw();
+            let i = i + 1;
+        }
+
+        return;
+    }
+
+    method void reset() {
+        var Bullet enemyBullet;
+        var int i;
+        
+        do player.reset();
+        do fleet.reset();
+        do shield1.reset();
+        do shield2.reset();
+        do shield3.reset();
+        do shield4.reset();
+        do bullet.deactivate();
+
+        let i = 0;
+        while (i < enemyBulletCount) {
+            let enemyBullet = enemyBullets[i];
+            do enemyBullet.deactivate();
+            let i = i + 1;
+        }
+
+        let playerLives = 3;
+        let score = 0;
+        let gameState = 0;
+        do showMenu();
+
+        return;
+    }
+
+    method void showPlayerLives() {
+        do Output.moveCursor(22, 51);
+        do Output.printString("Lives: ");
+        do Output.printInt(playerLives);
+        return;
+    }
+
+    method void clearPauseMessage() {
+        do Output.moveCursor(22, 30);
+        do Output.printString("      ");
+        return;
+    }
+
+    method void showPauseMessage() {
+        do Output.moveCursor(22, 30);
+	    do Output.printString("Paused");
+        return;
+    }
+
+    method void showGameOver() {
+        do Screen.clearScreen(); 
+        do Output.moveCursor(10, 29);
+        do Output.printString("GAME OVER");
+
+        do Output.moveCursor(13, 29);
+        do Output.printString("Score: ");
+        do Output.printInt(score);
+
+        do Sys.wait(3000);
+        do Screen.clearScreen();
+        do reset();
+        return;
+    }
+
+    method void showWin() {
+        do Screen.clearScreen();
+        do Output.moveCursor(10, 29);
+        do Output.printString("YOU WIN!");
+
+        do Output.moveCursor(13, 29);
+        do Output.printString("Score: ");
+        do Output.printInt(score);
+
+        do Sys.wait(3000);
+        do Screen.clearScreen();
+        do reset();
+        return;
+    }
+
+    method void handleInput() {
+        var char input;
+        let input = Keyboard.keyPressed();
+        if (input = 128) { // Enter Key
+            if (gameState = 0) {
+                let gameState = 1;
+                do Screen.clearScreen();
+                do player.draw();
+                do fleet.draw();
+                do shield1.draw();
+                do shield2.draw();
+                do shield3.draw();
+                do shield4.draw();
+                do showPlayerLives();
+                do Output.moveCursor(22, 0);
+                do Output.printString("Score: 0");
+            }
+        }
+        if (input = 140) { // ESC -> Pause
+            if (gameState = 0) { // if in menu, quit game
+                let gameState = 5;
+            }
+            else { 
+                if (gameState = 1) { // if in game, pause
+                    do showPauseMessage();
+                    let gameState = 2;
+                } else {
+                    if (gameState = 2) {
+                        do Sys.wait(200);
+                        let gameState = 1;
+                        do clearPauseMessage();
+                    }
+                }
+            }
+        }
+        if (input = 130) {  // l-arrow
+            if (gameState = 1) {
+                do player.erase();
+                do player.moveLeft();
+                do player.draw();
+            }
+        }
+        if (input = 132) {  // r-arrow
+            if (gameState = 1) {
+                do player.erase();
+                do player.moveRight();
+                do player.draw();
+            }
+        }
+        if (input = 32) { // space
+            if (gameState = 1) {
+                if (~(bullet.isActive())) {
+                    do bullet.fire(player.getX(), player.getY() - 3, -1);
+                }
+            }
+        }
+        return;
+    }
+
+    method void showMenu() {
+        do Menu.draw(1102);
+        do Output.moveCursor(13, 22);
+        do Output.printString("Press Enter to Start !");
+        return;
+    }
+
+    method void dispose() {
+        var Bullet enemyBullet;
+        var int i;
+
+        let i = 0;
+        while (i < enemyBulletCount) {
+            let enemyBullet = enemyBullets[i];
+            do enemyBullet.dispose();
+            let i = i + 1;
+        }
+
+        do player.dispose();
+        do fleet.dispose();
+        do bullet.dispose();
+        do shield1.dispose();
+        do shield2.dispose();
+        do shield3.dispose();
+        do shield4.dispose();
+        do Memory.deAlloc(this);
+        return;
+    }
+}
